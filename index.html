@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>勵志小語抽卡</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+        }
+        
+        .card {
+            perspective: 1000px;
+            width: 300px;
+            height: 400px;
+        }
+        
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+        
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+        
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        .card-front {
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        
+        .card-back {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            transform: rotateY(180deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: white;
+            font-size: 18px;
+            line-height: 1.6;
+            overflow-y: auto;
+        }
+        
+        .sentence-card {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            color: white;
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .stage {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        .stage.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .final-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .final-card img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .final-quote {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 18px;
+            line-height: 1.6;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .card {
+                width: 280px;
+                height: 380px;
+            }
+            
+            .card-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .sentence-card {
+                padding: 30px 20px;
+                margin: 0 20px;
+            }
+            
+            .final-card {
+                margin: 0 20px;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div id="app" class="w-full max-w-6xl">
+        <!-- 階段1: 選擇卡片 -->
+        <div id="stage1" class="stage active">
+            <h1 class="text-4xl md:text-6xl font-bold text-white text-center mb-8">選擇你的勵志卡片</h1>
+            <div id="cardGrid" class="card-grid"></div>
+        </div>
+
+        <!-- 階段2: 顯示卡片背面 -->
+        <div id="stage2" class="stage">
+            <div class="flex flex-col items-center">
+                <div id="selectedCard" class="card mb-8"></div>
+                <button id="nextToStage3" class="btn">下一步</button>
+            </div>
+        </div>
+
+        <!-- 階段3: 抽卡按鈕 -->
+        <div id="stage3" class="stage">
+            <div class="text-center">
+                <h2 class="text-3xl md:text-5xl font-bold text-white mb-8">準備好抽卡了嗎？</h2>
+                <button id="drawCard" class="btn text-xl px-8 py-4">抽卡</button>
+            </div>
+        </div>
+
+        <!-- 階段4: 隨機對白 -->
+        <div id="stage4" class="stage">
+            <div class="flex flex-col items-center">
+                <div id="sentenceCard" class="sentence-card mb-8">
+                    <h2 class="text-2xl md:text-4xl font-bold mb-4">今日對白</h2>
+                    <p id="sentenceText" class="text-xl md:text-2xl leading-relaxed"></p>
+                </div>
+                <button id="nextToFinal" class="btn">下一步</button>
+            </div>
+        </div>
+
+        <!-- 階段5: 最終結果 -->
+        <div id="stage5" class="stage">
+            <div class="final-card">
+                <h2 class="text-3xl md:text-5xl font-bold text-center mb-8 text-gray-800">你的勵志組合</h2>
+                <div id="finalContent"></div>
+                <div class="text-center mt-8">
+                    <button id="restart" class="btn">重新開始</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 資料結構類別
+        class Quote {
+            constructor(quote, quotes_Image_path) {
+                this.quote = quote;
+                this.quotes_Image_path = quotes_Image_path;
+            }
+        }
+
+        class Sentence {
+            constructor(sentence) {
+                this.sentence = sentence;
+            }
+        }
+
+        class AppState {
+            constructor() {
+                this.currentStage = 1;
+                this.selectedQuote = null;
+                this.selectedSentence = null;
+                this.quotes = [];
+                this.sentences = [];
+            }
+        }
+
+        // 應用程式主類別
+        class QuoteCardApp {
+            constructor() {
+                this.state = new AppState();
+                this.init();
+            }
+
+            async init() {
+                await this.loadData();
+                this.bindEvents();
+                this.renderStage1();
+            }
+
+            async loadData() {
+                try {
+                    const [quotesResponse, sentencesResponse] = await Promise.all([
+                        fetch('/text/quote.json'),
+                        fetch('/text/sentence.json')
+                    ]);
+
+                    const quotesData = await quotesResponse.json();
+                    const sentencesData = await sentencesResponse.json();
+
+                    this.state.quotes = quotesData.content.map(item => 
+                        new Quote(item.quote, item.quotes_Image_path)
+                    );
+                    this.state.sentences = sentencesData.content.map(item => 
+                        new Sentence(item.sentence)
+                    );
+                } catch (error) {
+                    console.error('載入資料失敗:', error);
+                    // 使用預設資料
+                    this.state.quotes = [
+                        new Quote("做你熱愛的事，是成就一番偉業的唯一途徑。", "/images/1.png"),
+                        new Quote("相信你能做到，你就已經成功了一半。", "/images/2.png")
+                    ];
+                    this.state.sentences = [
+                        new Sentence("關於人生我所學到的一切，可以總結為三個字：『它會繼續』。"),
+                        new Sentence("成功不是終點，失敗也非致命，最重要的是繼續前行的勇氣。")
+                    ];
+                }
+            }
+
+            bindEvents() {
+                document.getElementById('nextToStage3').addEventListener('click', () => this.goToStage(3));
+                document.getElementById('drawCard').addEventListener('click', () => this.drawRandomSentence());
+                document.getElementById('nextToFinal').addEventListener('click', () => this.goToStage(5));
+                document.getElementById('restart').addEventListener('click', () => this.restart());
+            }
+
+            goToStage(stage) {
+                // 隱藏所有階段
+                document.querySelectorAll('.stage').forEach(el => el.classList.remove('active'));
+                
+                // 顯示目標階段
+                document.getElementById(`stage${stage}`).classList.add('active');
+                this.state.currentStage = stage;
+
+                // 根據階段執行相應邏輯
+                switch(stage) {
+                    case 2:
+                        this.renderStage2();
+                        break;
+                    case 3:
+                        this.renderStage3();
+                        break;
+                    case 4:
+                        this.renderStage4();
+                        break;
+                    case 5:
+                        this.renderStage5();
+                        break;
+                }
+            }
+
+            renderStage1() {
+                const cardGrid = document.getElementById('cardGrid');
+                cardGrid.innerHTML = '';
+
+                this.state.quotes.forEach((quote, index) => {
+                    const cardElement = this.createCardElement(quote, index);
+                    cardGrid.appendChild(cardElement);
+                });
+            }
+
+            createCardElement(quote, index) {
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'card';
+                cardDiv.innerHTML = `
+                    <div class="card-inner">
+                        <div class="card-front" style="background-image: url('${quote.quotes_Image_path}')"></div>
+                        <div class="card-back">
+                            <p>${quote.quote}</p>
+                        </div>
+                    </div>
+                `;
+
+                // 添加點擊事件
+                cardDiv.addEventListener('click', () => {
+                    this.state.selectedQuote = quote;
+                    this.goToStage(2);
+                });
+
+                return cardDiv;
+            }
+
+            renderStage2() {
+                const selectedCard = document.getElementById('selectedCard');
+                selectedCard.innerHTML = `
+                    <div class="card-inner">
+                        <div class="card-front" style="background-image: url('${this.state.selectedQuote.quotes_Image_path}')"></div>
+                        <div class="card-back">
+                            <p>${this.state.selectedQuote.quote}</p>
+                        </div>
+                    </div>
+                `;
+
+                // 自動翻轉卡片
+                setTimeout(() => {
+                    selectedCard.classList.add('flipped');
+                }, 500);
+            }
+
+            renderStage3() {
+                // 階段3的內容已經在HTML中定義
+            }
+
+            drawRandomSentence() {
+                const randomIndex = Math.floor(Math.random() * this.state.sentences.length);
+                this.state.selectedSentence = this.state.sentences[randomIndex];
+                this.goToStage(4);
+            }
+
+            renderStage4() {
+                const sentenceText = document.getElementById('sentenceText');
+                sentenceText.textContent = this.state.selectedSentence.sentence;
+            }
+
+            renderStage5() {
+                const finalContent = document.getElementById('finalContent');
+                finalContent.innerHTML = `
+                    <img src="${this.state.selectedQuote.quotes_Image_path}" alt="勵志卡片">
+                    <div class="final-quote">
+                        <h3 class="text-xl font-bold mb-2">你的勵志小語</h3>
+                        <p>${this.state.selectedQuote.quote}</p>
+                    </div>
+                    <div class="final-quote mt-4">
+                        <h3 class="text-xl font-bold mb-2">今日對白</h3>
+                        <p>${this.state.selectedSentence.sentence}</p>
+                    </div>
+                `;
+            }
+
+            restart() {
+                this.state = new AppState();
+                this.goToStage(1);
+                this.renderStage1();
+            }
+        }
+
+        // 初始化應用程式
+        document.addEventListener('DOMContentLoaded', () => {
+            new QuoteCardApp();
+        });
+    </script>
+</body>
+</html>
