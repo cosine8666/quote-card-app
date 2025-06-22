@@ -249,8 +249,8 @@
             async loadData() {
                 try {
                     const [quotesResponse, sentencesResponse] = await Promise.all([
-                        fetch('/text/quote.json'),
-                        fetch('/text/sentence.json')
+                        fetch('text/quote.json'),
+                        fetch('text/sentence.json')
                     ]);
 
                     const quotesData = await quotesResponse.json();
@@ -266,8 +266,8 @@
                     console.error('載入資料失敗:', error);
                     // 使用預設資料
                     this.state.quotes = [
-                        new Quote("做你熱愛的事，是成就一番偉業的唯一途徑。", "/images/1.png"),
-                        new Quote("相信你能做到，你就已經成功了一半。", "/images/2.png")
+                        new Quote("做你熱愛的事，是成就一番偉業的唯一途徑。", "images/1.png"),
+                        new Quote("相信你能做到，你就已經成功了一半。", "images/2.png")
                     ];
                     this.state.sentences = [
                         new Sentence("關於人生我所學到的一切，可以總結為三個字：『它會繼續』。"),
