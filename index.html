@@ -212,6 +212,15 @@
                 <h2 class="text-3xl md:text-5xl font-bold text-center mb-8 text-gray-800">你的勵志組合</h2>
                 <div id="finalContent"></div>
                 <div class="text-center mt-8">
+                    <button id="nextToStage6" class="btn">下一步</button>
+                </div>
+            </div>
+        </div>
+        <!-- 階段6: 重新開始 -->
+        <div id="stage6" class="stage">
+            <div class="final-card">
+                <h2 class="text-3xl md:text-5xl font-bold text-center mb-8 text-gray-800">感謝體驗</h2>
+                <div class="text-center mt-8">
                     <button id="restart" class="btn">重新開始</button>
                 </div>
             </div>
@@ -290,6 +299,7 @@
                 document.getElementById('nextToStage3').addEventListener('click', () => this.goToStage(3));
                 document.getElementById('drawCard').addEventListener('click', () => this.drawRandomSentence());
                 document.getElementById('nextToFinal').addEventListener('click', () => this.goToStage(5));
+                document.getElementById('nextToStage6').addEventListener('click', () => this.goToStage(6));
                 document.getElementById('restart').addEventListener('click', () => this.restart());
             }
 
@@ -314,6 +324,9 @@
                         break;
                     case 5:
                         this.renderStage5();
+                        break;
+                    case 6:
+                        this.renderStage6();
                         break;
                 }
             }
@@ -394,6 +407,10 @@
                         <p>${this.state.selectedSentence.sentence}</p>
                     </div>
                 `;
+            }
+
+            renderStage6() {
+                // 階段6只顯示重新開始按鈕，狀態已自動切換
             }
 
             restart() {
